@@ -1,0 +1,1 @@
+Please add your own TheMovieDB API key in the [utilities/TheMovieDB.java file] (https://github.com/vimalk29/Popular_Movies/blob/master/app/src/main/java/popularmovies/example/com/utilities/TheMovieDB.java) Before using this project.
