@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="loading_movies">Loading Movies…</string>
+    <string name="error_loading_text">Error loading movies from the TMDB.\nCheck your Internet Connection and try again later.</string>
+    <string name="released_on">Released on :  </string>
+    <string name="average_votes">Average Votes :  </string>
+    <string name="language">Language :  </string>
+    <string name="popularity">Popularity :  </string>
+    <string name="sort_by_label">Sort by:</string>
+    <string name="popularity_label">Popularity</string>
+    <string name="top_rated_label">Top Rated</string>
+    <string name="settings_label">Settings</string>
+</resources>
