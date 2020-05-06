@@ -17,7 +17,8 @@
                 android:id="@+id/posterImage"
                 android:layout_marginTop="10dp"
                 android:layout_width="150dp"
-                android:layout_height="250dp"/>
+                android:layout_height="250dp"
+                android:contentDescription="@string/movie_poster_image_descr" />
             <LinearLayout
                 android:layout_alignTop="@id/posterImage"
                 android:layout_alignBottom="@id/posterImage"
@@ -61,7 +62,7 @@
                     android:layout_marginTop="20dp"
                     android:orientation="horizontal">
                     <TextView
-                        android:text="@string/average_votes"
+                        android:text="@string/user_rating_label"
                         android:textColor="@color/colorBlack"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
@@ -107,7 +108,7 @@
         </RelativeLayout>
         <TextView
             android:id="@+id/overview_tv"
-            tools:text="dgcfhjbklm;ljkhgfchjbnklm"
+            tools:text="OVERVIEW HERE"
             android:textSize="18sp"
             android:layout_marginTop="10dp"
             android:layout_below="@id/container"
