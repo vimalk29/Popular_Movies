@@ -1,5 +1,11 @@
 package popularmovies.example.com.model;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 
 /*
@@ -7,15 +13,36 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 */
+@Entity(tableName = "favourites")
 public class MoviePOJO implements Serializable /*implements Parcelable*/ {
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "movieId")
     private String id;
+    @ColumnInfo(name = "title")
     private String title;
+    @ColumnInfo(name = "releaseDate")
     private String releaseDate;
+    @ColumnInfo(name = "overview")
     private String overview;
+    @ColumnInfo(name = "avgVote")
     private Double voteAvg;
+    @ColumnInfo(name = "posterPath")
     private String posterPath;
+    @ColumnInfo(name = "language")
     private String language;
+    @ColumnInfo(name = "popularity")
     private Double popularity;
+
+    public Boolean getFavourite() {
+        return isFavourite;
+    }
+
+    public void setFavourite(Boolean favourite) {
+        isFavourite = favourite;
+    }
+
+    private Boolean isFavourite;
 
     public MoviePOJO(String id, String title, String releaseDate, String overview, Double voteAvg, String posterPath, String language, Double popularity) {
         this.id = id;
@@ -27,7 +54,7 @@ public class MoviePOJO implements Serializable /*implements Parcelable*/ {
         this.language = language;
         this.popularity = popularity;
     }
-
+    @Ignore
     public MoviePOJO() {
     }
 
@@ -95,38 +122,4 @@ public class MoviePOJO implements Serializable /*implements Parcelable*/ {
         this.popularity = popularity;
     }
 
-//    @Override
-//    public int describeContents() {
-//        return 0;
-//    }
-//
-//    @Override
-//    public void writeToParcel(Parcel parcel, int i) {
-//        SparseArray<Object> spa = new SparseArray<>();
-//        spa.put(1,this.title);
-//        spa.put(2,this.releaseDate);
-//        spa.put(3,this.overview);
-//        spa.put(4,this.voteAvg);
-//        spa.put(5,this.posterPath);
-//        spa.put(6,this.language);
-//        spa.put(7,this.popularity);
-//        parcel.writeSparseArray(spa);
-//    }
-//    public static final Parcelable.Creator<MoviePOJO> CREATOR
-//            = new Parcelable.Creator<MoviePOJO>() {
-//        public MoviePOJO createFromParcel(Parcel in) {
-//            return new MoviePOJO(in);
-//        }
-//
-//        public MoviePOJO[] newArray(int size) {
-//            return new MoviePOJO[size];
-//        }
-//    };
-//
-//    public MoviePOJO(Parcel in) {
-//        SparseArray spa = new SparseArray<>();
-//        in.readSparseArray();
-//
-//
-//    }
 }

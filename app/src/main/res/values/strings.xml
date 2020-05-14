@@ -11,4 +11,16 @@
     <string name="settings_label">Settings</string>
     <string name="user_rating_label">User Rating :</string>
     <string name="movie_poster_image_descr">Movie Poster Image</string>
+    <string name="favourite_label">Favourites</string>
+
+    <string name="pref_sort_key" translatable="false">sortBy</string>
+    <string name="pref_sort_popularity" translatable="false">popular</string>
+    <string name="pref_sort_toprated" translatable="false">toprated</string>
+    <string name="pref_sort_favourite" translatable="false">favourite</string>
+
+    <string name="movie_trailers_label">Movie Trailers</string>
+    <string name="reviews_label">Reviews</string>
+    <string name="toggle_review_list">Toggle Review List</string>
+    <string name="toggle_trailers_list">Toggle Trailers List</string>
+    <string name="play_button">Play Button</string>
 </resources>
