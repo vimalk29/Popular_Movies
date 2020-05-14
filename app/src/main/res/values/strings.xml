@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="loading_movies">Loading Movies…</string>
-    <string name="error_loading_text">Error loading movies from the TMDB.\nCheck your Internet Connection and try again later.</string>
+    <string name="error_loading_text">Error loading movies from the TMDB.\nCheck your Internet Connection and try again later.\nUntil then, you can look at your favourite movies by going to settings.</string>
     <string name="released_on">Released on :  </string>
     <string name="language">Language :  </string>
     <string name="popularity">Popularity :  </string>
@@ -23,4 +23,5 @@
     <string name="toggle_review_list">Toggle Review List</string>
     <string name="toggle_trailers_list">Toggle Trailers List</string>
     <string name="play_button">Play Button</string>
+    <string name="error_loading_fav_text">Seems like you have no favourite movies marked.</string>
 </resources>

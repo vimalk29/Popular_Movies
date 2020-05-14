@@ -40,8 +40,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private RecyclerView movieRecyclerView;
     private TextView loadingIndicatorTV;
     private ActionBar actionBar;
-    private FetchPopularMovies fetchPopularMovies;
     private FavouriteDatabase fDB;
+    private MovieAdapter movieAdapter;
+    /*type is
+    //        0 for popular
+    //        1 for top rated
+    //        3 for favourites*/
+    private int currentType=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,33 +61,30 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         movieRecyclerView.setVisibility(View.GONE);
         loadingIndicatorTV.setVisibility(View.VISIBLE);
         SharedPreferences sharedPreferences =PreferenceManager.getDefaultSharedPreferences(this);
-        loadMoviesFromPreferences(sharedPreferences);
+        loadMoviesFromPreferences(sharedPreferences,true);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        movieAdapter = new MovieAdapter(null, MainActivity.this);
+        movieRecyclerView.setHasFixedSize(true);
+        GridLayoutManager layoutManager = new GridLayoutManager(MainActivity.this, numberOfColumns());
+        movieRecyclerView.setLayoutManager(layoutManager);
+        movieRecyclerView.setAdapter(movieAdapter);
     }
 
-    final String TAG = "MainActivity";
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (s.equals(getString(R.string.pref_sort_key))){
-            loadMoviesFromPreferences(sharedPreferences);
-        }
-    }
-
-    private void loadMoviesFromPreferences(SharedPreferences sharedPreferences) {
-        fetchPopularMovies = new FetchPopularMovies();
+    private void loadMoviesFromPreferences(SharedPreferences sharedPreferences, boolean firstLoad) {
+        FetchPopularMovies fetchPopularMovies = new FetchPopularMovies();
         String type = sharedPreferences.getString(getString(R.string.pref_sort_key),getString(R.string.pref_sort_popularity));
         if(type.equals(getString(R.string.pref_sort_popularity))){
-            Log.d(TAG, "loadMoviesFromPreferences: POPULARITY "+type);
-            actionBar.setTitle("Popular Movies");
-
-            fetchPopularMovies.execute(true);
+            currentType=0;
+            if (!firstLoad)
+                populateUI(null);
+            fetchPopularMovies.execute();
         }else if (type.equals(getString(R.string.pref_sort_toprated))){
-            Log.d(TAG, "loadMoviesFromPreferences: TOP_RATED "+type);
-            actionBar.setTitle("Top Rated Movies");
-            fetchPopularMovies.execute(false);
+            currentType=1;
+            if (!firstLoad)
+                populateUI(null);
+            fetchPopularMovies.execute();
         }else{
-            Log.d(TAG, "loadMoviesFromPreferences: FAVOURITE "+type);
-            actionBar.setTitle("Favourite Movies");
+            currentType=2;
             LiveData<List<MoviePOJO>> movies = fDB.favouriteDAO().loadAllFavourites();
             movies.observe(MainActivity.this, new Observer<List<MoviePOJO>>() {
                 @Override
@@ -90,34 +92,56 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     if (PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString(getString(R.string.pref_sort_key),getString(R.string.pref_sort_popularity)).equals(getString(R.string.pref_sort_favourite))) {
                         movieRecyclerView.setVisibility(View.VISIBLE);
                         loadingIndicatorTV.setVisibility(View.GONE);
-                        populateUI(moviePOJOS);
+                        if (moviePOJOS!=null && moviePOJOS.size()!=0)
+                            populateUI(moviePOJOS);
+                        else {
+                            loadingIndicatorTV.setVisibility(View.VISIBLE);
+                            movieRecyclerView.setVisibility(View.GONE);
+                            loadingIndicatorTV.setText(getString(R.string.error_loading_fav_text));
+                        }
                     }
                 }
             });
         }
     }
 
-    void populateUI(List<MoviePOJO> moviePOJOS){
-        loadingIndicatorTV.setVisibility(View.GONE);
-        movieRecyclerView.setVisibility(View.VISIBLE);
-        MovieAdapter movieAdapter = new MovieAdapter(moviePOJOS, MainActivity.this);
-        movieRecyclerView.setHasFixedSize(true);
-        GridLayoutManager layoutManager = new GridLayoutManager(MainActivity.this, numberOfColumns());
-        movieRecyclerView.setLayoutManager(layoutManager);
-        movieRecyclerView.setAdapter(movieAdapter);
+    private void populateUI(List<MoviePOJO> moviePOJOS){
+        if (moviePOJOS!=null) {
+            loadingIndicatorTV.setVisibility(View.GONE);
+            movieRecyclerView.setVisibility(View.VISIBLE);
+            movieAdapter.updateList(moviePOJOS);
+        }else {
+            loadingIndicatorTV.setVisibility(View.VISIBLE);
+            movieRecyclerView.setVisibility(View.GONE);
+            loadingIndicatorTV.setText(getString(R.string.error_loading_text));
+        }
+        switch (currentType){
+            case 0:
+                actionBar.setTitle("Popular Movies");
+                break;
+            case 1:
+                actionBar.setTitle("Top Rated Movies");
+                break;
+            case 2:
+                actionBar.setTitle("Favourite Movies");
+        }
     }
-
-    public class FetchPopularMovies extends AsyncTask<Boolean, Void, List<MoviePOJO>> {
+    public class FetchPopularMovies extends AsyncTask<Void, Void, List<MoviePOJO>> {
 
         @Override
-        protected List<MoviePOJO> doInBackground(Boolean... findPopular) {
-            if (findPopular[0]==null)
+        protected List<MoviePOJO> doInBackground(Void... voids) {
+            boolean findByPopularity=false;
+            if (currentType==2) {
                 return null;
-            URL popularMovierequestUrl = TheMovieDBNetwork.getMoviesUrl(findPopular[0]);
+            }
+            else if (currentType==0)
+                findByPopularity=true;
+
+            URL popularMovieRequestUrl = TheMovieDBNetwork.getMoviesUrl(findByPopularity);
             if (isOnline()) {
                 try {
                     String jsonMovieResponse = TheMovieDBNetwork
-                            .getResponseFromHttpUrl(popularMovierequestUrl);
+                            .getResponseFromHttpUrl(popularMovieRequestUrl);
                     Log.d("MainActivity", "doInBackground: "+ jsonMovieResponse);
                     return MovieDBJsonUtils
                             .getMovieDataFromJson(jsonMovieResponse);
@@ -129,16 +153,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 return null;
             }
         }
-
         @Override
         protected void onPostExecute(List<MoviePOJO> moviePOJOS) {
             super.onPostExecute(moviePOJOS);
-            if(moviePOJOS==null || moviePOJOS.size()==0){
-                loadingIndicatorTV.setText(getString(R.string.error_loading_text));
-            }else {
-                populateUI(moviePOJOS);
-            }
+            populateUI(moviePOJOS);
+
         }
+
         boolean isOnline() {
             try {
                 int timeoutMs = 1500;
@@ -153,6 +174,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 e.printStackTrace();
                 return false;
             }
+        }
+    }
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(getString(R.string.pref_sort_key))){
+            loadMoviesFromPreferences(sharedPreferences,false);
         }
     }
     private int numberOfColumns() {

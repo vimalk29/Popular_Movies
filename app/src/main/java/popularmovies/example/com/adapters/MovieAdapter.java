@@ -24,12 +24,16 @@ import popularmovies.example.com.model.MoviePOJO;
 import popularmovies.example.com.utilities.AppExecutors;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
-    private final List<MoviePOJO> moviePOJOS;
+    private List<MoviePOJO> moviePOJOS;
     private final Context context;
 
     public MovieAdapter(List<MoviePOJO> moviePOJOS, Context context) {
         this.moviePOJOS = moviePOJOS;
         this.context = context;
+    }
+    public void updateList(List<MoviePOJO> pojos){
+        this.moviePOJOS=pojos;
+        this.notifyDataSetChanged();
     }
 
     @NonNull
