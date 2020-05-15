@@ -3,8 +3,8 @@ package popularmovies.example.com.actvities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +32,7 @@ import popularmovies.example.com.R;
 import popularmovies.example.com.adapters.MovieAdapter;
 import popularmovies.example.com.database.FavouriteDatabase;
 import popularmovies.example.com.model.MoviePOJO;
+import popularmovies.example.com.model.MovieViewModel;
 import popularmovies.example.com.utilities.MovieDBJsonUtils;
 import popularmovies.example.com.utilities.TheMovieDBNetwork;
 
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private RecyclerView movieRecyclerView;
     private TextView loadingIndicatorTV;
     private ActionBar actionBar;
-    private FavouriteDatabase fDB;
     private MovieAdapter movieAdapter;
     /*type is
     //        0 for popular
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         setContentView(R.layout.activity_main);
         actionBar = getSupportActionBar();
 
-        fDB = FavouriteDatabase.getInstance(getApplicationContext());
         movieRecyclerView = findViewById(R.id.movie_recycler);
         loadingIndicatorTV = findViewById(R.id.loading_text);
 
@@ -85,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             fetchPopularMovies.execute();
         }else{
             currentType=2;
-            LiveData<List<MoviePOJO>> movies = fDB.favouriteDAO().loadAllFavourites();
-            movies.observe(MainActivity.this, new Observer<List<MoviePOJO>>() {
+            MovieViewModel viewModel = new ViewModelProvider(MainActivity.this).get(MovieViewModel.class);
+            viewModel.getMovies().observe(MainActivity.this, new Observer<List<MoviePOJO>>() {
                 @Override
                 public void onChanged(List<MoviePOJO> moviePOJOS) {
                     if (PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString(getString(R.string.pref_sort_key),getString(R.string.pref_sort_popularity)).equals(getString(R.string.pref_sort_favourite))) {

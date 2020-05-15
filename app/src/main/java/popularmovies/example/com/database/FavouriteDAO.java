@@ -27,5 +27,5 @@ public interface FavouriteDAO {
     void removeFromFavourite(MoviePOJO moviePOJO);
 
     @Query("SELECT * FROM favourites WHERE movieId = :id")
-    MoviePOJO findMovie(String id);
+    LiveData<MoviePOJO> findMovie(String id);
 }

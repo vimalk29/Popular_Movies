@@ -1,20 +1,16 @@
 package popularmovies.example.com.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import java.io.Serializable;
-
-/*
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.SparseArray;
-*/
 @Entity(tableName = "favourites")
-public class MoviePOJO implements Serializable /*implements Parcelable*/ {
+public class MoviePOJO implements Parcelable {
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "movieId")
@@ -122,4 +118,61 @@ public class MoviePOJO implements Serializable /*implements Parcelable*/ {
         this.popularity = popularity;
     }
 
+    protected MoviePOJO(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        releaseDate = in.readString();
+        overview = in.readString();
+        voteAvg = in.readByte() == 0x00 ? null : in.readDouble();
+        posterPath = in.readString();
+        language = in.readString();
+        popularity = in.readByte() == 0x00 ? null : in.readDouble();
+        byte isFavouriteVal = in.readByte();
+        isFavourite = isFavouriteVal == 0x02 ? null : isFavouriteVal != 0x00;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(releaseDate);
+        dest.writeString(overview);
+        if (voteAvg == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(voteAvg);
+        }
+        dest.writeString(posterPath);
+        dest.writeString(language);
+        if (popularity == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(popularity);
+        }
+        if (isFavourite == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (isFavourite ? 0x01 : 0x00));
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<MoviePOJO> CREATOR = new Parcelable.Creator<MoviePOJO>() {
+        @Override
+        public MoviePOJO createFromParcel(Parcel in) {
+            return new MoviePOJO(in);
+        }
+
+        @Override
+        public MoviePOJO[] newArray(int size) {
+            return new MoviePOJO[size];
+        }
+    };
 }

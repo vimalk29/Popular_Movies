@@ -66,35 +66,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         private void bindData(final int position){
             MoviePOJO moviePOJO = moviePOJOS.get(position);
             Picasso.get().load(moviePOJO.getPosterPath()).into(poster);
-//            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (fDB.favouriteDAO().findMovie(moviePOJOS.get(position).getId()) != null){
-//                        favouriteIcon.setImageDrawable(context.getDrawable(R.drawable.ic_favorite));
-//                    }
-//                }
-//            });
         }
-        final String TAG = "MovieAdapter";
         @Override
         public void onClick(final View view) {
             final int position = getAdapterPosition();
-//            if(view.getId()== R.id.favourite_image){
-//                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (fDB.favouriteDAO().findMovie(moviePOJOS.get(position).getId())!=null){
-//                            //Log.d(TAG, "run: removing Fav");
-//                            favouriteIcon.setImageDrawable(context.getDrawable(R.drawable.ic_favorite_border));
-//                            fDB.favouriteDAO().removeFromFavourite(moviePOJOS.get(position));
-//                        }else {
-//                            //Log.d(TAG, "run: adding Fav");
-//                            favouriteIcon.setImageDrawable(context.getDrawable(R.drawable.ic_favorite));
-//                            fDB.favouriteDAO().addToFavourite(moviePOJOS.get(position));
-//                        }
-//                    }
-//                });
-//            }else {
                 Intent detailActivityIntent = new Intent(context, DetailActivity.class);
                 detailActivityIntent.putExtra("movieData", moviePOJOS.get(position));
                 context.startActivity(detailActivityIntent);

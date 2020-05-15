@@ -3,6 +3,8 @@ package popularmovies.example.com.actvities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -30,6 +32,8 @@ import popularmovies.example.com.adapters.ReviewAdapter;
 import popularmovies.example.com.adapters.VideosAdapter;
 import popularmovies.example.com.database.FavouriteDatabase;
 import popularmovies.example.com.databinding.ActivityDetailBinding;
+import popularmovies.example.com.model.FavouriteMovieViewModel;
+import popularmovies.example.com.model.FavouriteViewModelFactory;
 import popularmovies.example.com.model.MoviePOJO;
 import popularmovies.example.com.model.ReviewPOJO;
 import popularmovies.example.com.model.VideosPOJO;
@@ -53,9 +57,9 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         dBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
         Intent intent = getIntent();
-        moviePOJO = (MoviePOJO) intent.getSerializableExtra("movieData");
+        moviePOJO = intent.getParcelableExtra("movieData");
         if(moviePOJO == null){
-            Toast.makeText(this,"ooops! Movie Data not found!",Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"Oops! Movie Data not found!",Toast.LENGTH_LONG).show();
             finish();
         }
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -70,15 +74,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         dBinding.averageVote.setText(moviePOJO.getLanguage());
 
         database = FavouriteDatabase.getInstance(DetailActivity.this);
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (database.favouriteDAO().findMovie(moviePOJO.getId())!=null){
-                    dBinding.favouriteImage.setImageDrawable(getDrawable(R.drawable.ic_favorite));
-                    isFav=true;
-                }
-            }
-        });
+        setupFavouriteButton();
         dBinding.trailerRecyclerView.setLayoutManager(new LinearLayoutManager(DetailActivity.this));
         dBinding.trailerRecyclerView.setHasFixedSize(true);
         videoAdapter = new VideosAdapter(DetailActivity.this, null);
@@ -95,6 +91,23 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         dBinding.reviewLabelContainer.setOnClickListener(this);
         dBinding.trailerLabelContainer.setOnClickListener(this);
         getVideosAndReviews();
+    }
+
+    private void setupFavouriteButton() {
+        FavouriteViewModelFactory factory = new FavouriteViewModelFactory(database, moviePOJO.getId());
+        final FavouriteMovieViewModel viewModel = new ViewModelProvider(DetailActivity.this,factory).get(FavouriteMovieViewModel.class);
+        viewModel.getMovie().observe(DetailActivity.this, new Observer<MoviePOJO>() {
+            @Override
+            public void onChanged(MoviePOJO moviePOJO) {
+                if(moviePOJO!=null){
+                    dBinding.favouriteImage.setImageDrawable(getDrawable(R.drawable.ic_favorite));
+                    isFav=true;
+                }else{
+                    dBinding.favouriteImage.setImageDrawable(getDrawable(R.drawable.ic_favorite_border));
+                    isFav=false;
+                }
+            }
+        });
     }
 
     private void getVideosAndReviews(){
@@ -161,10 +174,8 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                     public void run() {
                         if (isFav){
                             database.favouriteDAO().removeFromFavourite(moviePOJO);
-                            dBinding.favouriteImage.setImageDrawable(getDrawable(R.drawable.ic_favorite_border));
                         }else{
                             database.favouriteDAO().addToFavourite(moviePOJO);
-                            dBinding.favouriteImage.setImageDrawable(getDrawable(R.drawable.ic_favorite));
                         }
                         isFav=!isFav;
                     }
